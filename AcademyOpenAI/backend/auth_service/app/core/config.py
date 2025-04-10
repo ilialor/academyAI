@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     def get_database_url(self) -> str:
         if self.SQLALCHEMY_DATABASE_URI:
             return self.SQLALCHEMY_DATABASE_URI
-        return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
+        # Используем протокол postgresql+asyncpg для асинхронного драйвера
+        return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}/{self.POSTGRES_DB}"
 
     # JWT
     SECRET_KEY: str = "your-secret-key"  # В продакшене заменить на безопасный ключ

@@ -51,9 +51,9 @@ AcademyOpenAI построен на микросервисной архитек�
    cd AcademyOpenAI
    ```
 
-2. Запустить с помощью Docker Compose:
+2. Запустить все сервисы с помощью Docker Compose:
    ```bash
-   docker-compose up -d
+   docker-compose --profile all up -d
    ```
 
 3. Доступ к сервисам:

@@ -1,18 +1,37 @@
 """Configuration settings for the pipeline worker service."""
 
 import os
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from pydantic import BaseSettings, Field
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Configuration settings for the pipeline worker service."""
     
+    APP_NAME: str = "Pipeline Worker"
+    DEBUG: bool = False
+
+    # Celery/Message Broker settings
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0" # Example using Redis
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
+
+    # External Service API Keys (load from env)
+    GOOGLE_API_KEY: str = "YOUR_GOOGLE_API_KEY"
+    # ASSEMBLYAI_API_KEY: str = "YOUR_ASSEMBLYAI_KEY"
+    # DEEPL_API_KEY: str = "YOUR_DEEPL_KEY"
+
+    # Course Service API URL (to update status/results)
+    COURSES_SERVICE_URL: str = "http://courses-service/api/v1" # Internal service name
+
+    # MongoDB connection for courses data
+    MONGODB_URL: str = "mongodb://localhost:27017/"
+    MONGODB_DB_NAME: str = "academy_courses"
+
     # API Keys
     GOOGLE_AI_API_KEY: Optional[str] = Field(None, env="GOOGLE_AI_API_KEY")
     
     # Service URLs
     AUTH_SERVICE_URL: str = Field("http://auth-service:8000", env="AUTH_SERVICE_URL")
-    COURSES_SERVICE_URL: str = Field("http://courses-service:8000", env="COURSES_SERVICE_URL")
     
     # Message Queue Settings
     RABBITMQ_HOST: str = Field("rabbitmq", env="RABBITMQ_HOST")
@@ -46,6 +65,7 @@ class Settings(BaseSettings):
     class Config:
         """Pydantic config."""
         env_file = ".env"
+        env_file_encoding = 'utf-8'
         case_sensitive = True
 
 # Create global settings instance
