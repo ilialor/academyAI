@@ -1,0 +1,124 @@
+services:
+  # Сервис аутентификации
+  auth_service:
+    build:
+      context: ../../backend/auth_service
+      dockerfile: Dockerfile
+    container_name: academy_auth_service
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/auth_db
+      - JWT_SECRET_KEY=your_jwt_secret_key_here
+      - JWT_ALGORITHM=HS256
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+    depends_on:
+      - postgres
+    networks:
+      - academy_network
+    volumes:
+      - ../../backend/auth_service:/app
+    profiles: ["auth", "all"]
+
+  # Сервис курсов
+  courses_service:
+    build:
+      context: ../../backend/courses_service
+      dockerfile: Dockerfile
+    container_name: academy_courses_service
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/
+      - MONGODB_DB=courses_db
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - academy_network
+    volumes:
+      - ../../backend/courses_service:/app
+    profiles: ["courses", "all"]
+
+  # Сервис обработки контента
+  pipeline_worker:
+    build:
+      context: ../../backend/pipeline_worker
+      dockerfile: Dockerfile
+    container_name: academy_pipeline_worker
+    restart: unless-stopped
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/
+      - MONGODB_DB=courses_db
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - GOOGLE_AI_API_KEY=${GOOGLE_AI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - mongo
+      - rabbitmq
+      - courses_service
+    networks:
+      - academy_network
+    volumes:
+      - ../../backend/pipeline_worker:/app
+    profiles: ["worker", "all"]
+
+  # База данных PostgreSQL для сервиса аутентификации
+  postgres:
+    image: postgres:15-alpine
+    container_name: academy_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - academy_network
+    profiles: ["auth", "all"]
+
+  # База данных MongoDB для сервиса курсов
+  mongo:
+    image: mongo:6-jammy
+    container_name: academy_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - academy_network
+    profiles: ["courses", "worker", "all"]
+
+  # RabbitMQ для асинхронной обработки
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: academy_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"  # AMQP порт
+      - "15672:15672"  # Management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - academy_network
+    profiles: ["courses", "worker", "all"]
+
+networks:
+  academy_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  rabbitmq_data:

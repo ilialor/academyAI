@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "courses_service"
+version = "0.1.0"
+description = "Courses management service for AcademyOpenAI"
+authors = ["AcademyOpenAI Team"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.0"
+pydantic = "^2.11.3"
+pydantic-settings = "^2.8.1"
+motor = "^3.7.0"
+pymongo = "^4.12.0"
+aio-pika = "^9.5.5"
+python-multipart = "^0.0.20"
+python-jose = {extras = ["cryptography"], version = "^3.4.0"}
+httpx = "^0.28.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+pytest-asyncio = "^0.26.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
