@@ -47,7 +47,7 @@ AcademyOpenAI построен на микросервисной архитек�
 
 1. Клонировать репозиторий:
    ```bash
-   git clone https://github.com/ilialor/AcademyOpenAI.git
+   git clone https://github.com/ilialor/academyAI.git
    cd AcademyOpenAI
    ```
 
