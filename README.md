@@ -53,13 +53,13 @@ AcademyOpenAI построен на микросервисной архитек�
 
 2. Запустить с помощью Docker Compose:
    ```bash
-   docker-compose up -d
+   docker-compose --profile all up -d
    ```
 
 3. Доступ к сервисам:
-   - Веб-интерфейс: http://localhost:3000
+   <!-- - Веб-интерфейс: http://localhost:3000
    - API Gateway: http://localhost:8000
-   - Документация API: http://localhost:8000/docs
+   - Документация API: http://localhost:8000/docs -->
 
 ## Структура проекта
 
