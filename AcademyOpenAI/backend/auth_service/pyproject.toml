@@ -5,7 +5,7 @@ description = "Authentication service for AcademyOpenAI"
 authors = ["AcademyOpenAI Team"]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 fastapi = "^0.115.12"
 uvicorn = "^0.34.0"
 pydantic = "^2.5.2"

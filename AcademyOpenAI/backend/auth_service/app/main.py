@@ -1,14 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1 import api_v1_router
 from app.core.config import settings
-from app.db.session import engine, SessionLocal
-from app.db import models
+from app.db.session import async_engine as engine, AsyncSessionFactory as SessionLocal
+from app.models.user import Base  # Импортируем Base из models.user
 
 # Создание таблиц в базе данных
-models.Base.metadata.create_all(bind=engine)
+# Заменяем синхронное создание таблиц на асинхронную операцию
+# которую нужно запускать в отдельной функции при старте приложения
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -30,13 +32,13 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-# Dependency для получения сессии БД
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Для асинхронного создания таблиц добавляем обработчик startup
+@app.on_event("startup")
+async def create_tables():
+    async with engine.begin() as conn:
+        # await conn.run_sync(Base.metadata.drop_all)  # Раскомментировать для сброса БД
+        await conn.run_sync(Base.metadata.create_all)
+    print("База данных инициализирована")
 
 # Подключение роутеров
 app.include_router(api_v1_router, prefix="/api/v1")

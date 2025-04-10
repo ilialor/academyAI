@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -19,11 +19,17 @@ COPY pyproject.toml ./
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root --only main
 
+# Удаляем psycopg2, чтобы избежать конфликта драйверов
+RUN pip uninstall -y psycopg2-binary
+
 # Копирование остальных файлов проекта
 COPY . .
 
 # Установка проекта
 RUN poetry install --no-interaction --no-ansi --only main
+
+# Убедимся, что asyncpg точно установлен
+RUN pip install --no-cache-dir asyncpg
 
 # Порт для FastAPI
 EXPOSE 8000
